@@ -1,2 +1,5 @@
 fastapi
 uvicorn
+langchain
+langchain-ollama
+ollama
