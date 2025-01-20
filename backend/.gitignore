@@ -31,3 +31,6 @@ $RECYCLE.BIN/
 
 # Linux
 *~
+
+# Json
+*.json
