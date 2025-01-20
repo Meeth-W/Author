@@ -1,28 +1,37 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, Header
 from pydantic import BaseModel
+from functions.auth import login, register, unregister, verify_user
 
 app = FastAPI()
 
-# Register Route
-class Register(BaseModel):
+# Models
+class RegisterRequest(BaseModel):
     username: str
     password: str
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+# Routes
 @app.post("/register")
-def register(register: Register):
-    from functions.auth import register as _register
-    return _register(register.username, register.password)
-
-# Login Route
-class Login(BaseModel):
-    username: str
-    password: str
+def register_user(request: RegisterRequest):
+    return register(request.username, request.password)
 
 @app.post("/login")
-def login(login: Login):
-    from functions.auth import login as _login
-    return _login(login.username, login.password)
+def login_user(request: LoginRequest):
+    return login(request.username, request.password)
 
+@app.post("/unregister")
+def unregister_user(username: str):
+    return unregister(username)
+
+@app.post("/get_response")
+def get_response(prompt: str, token: str = Header(...)):
+    result = verify_user(token)
+    if not result['success']:
+        raise HTTPException(status_code=401, detail=result['message'])
+    return {"message": f"Response for {result['username']}: {prompt}"}
 
 # Run the app
 if __name__ == "__main__":
